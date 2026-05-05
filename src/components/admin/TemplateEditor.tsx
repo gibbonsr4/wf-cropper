@@ -243,6 +243,8 @@ export default function TemplateEditor() {
                     onChange={(e) =>
                       updateTemplate(ti, { name: e.target.value })
                     }
+                    aria-invalid={fieldErrors(ti, undefined, "name").length > 0 || undefined}
+                    aria-describedby={fieldErrors(ti, undefined, "name").length > 0 ? `${idPrefix}-name-${ti}-err` : undefined}
                     className={cn(
                       "w-full rounded-md border bg-input text-foreground outline-none focus:border-blue px-3 py-1.5 text-sm",
                       fieldErrors(ti, undefined, "name").length > 0
@@ -251,7 +253,7 @@ export default function TemplateEditor() {
                     )}
                   />
                   {fieldErrors(ti, undefined, "name").map((e, i) => (
-                    <p key={i} className="text-[11px] text-destructive mt-0.5">
+                    <p key={i} id={`${idPrefix}-name-${ti}-err`} className="text-[11px] text-destructive mt-0.5">
                       {e.message}
                     </p>
                   ))}
@@ -375,8 +377,18 @@ export default function TemplateEditor() {
                           onChange={(e) =>
                             updateOutput(ti, oi, { name: e.target.value })
                           }
-                          className="w-full rounded-md border border-border bg-input text-foreground outline-none focus:border-blue px-2 py-1 text-sm"
+                          aria-invalid={fieldErrors(ti, oi, "name").length > 0 || undefined}
+                          aria-describedby={fieldErrors(ti, oi, "name").length > 0 ? `${idPrefix}-oname-${ti}-${oi}-err` : undefined}
+                          className={cn(
+                            "w-full rounded-md border bg-input text-foreground outline-none focus:border-blue px-2 py-1 text-sm",
+                            fieldErrors(ti, oi, "name").length > 0 ? "border-destructive" : "border-border"
+                          )}
                         />
+                        {fieldErrors(ti, oi, "name").map((e, i) => (
+                          <p key={i} id={`${idPrefix}-oname-${ti}-${oi}-err`} className="text-[11px] text-destructive mt-0.5">
+                            {e.message}
+                          </p>
+                        ))}
                         <FieldHint>Label shown in the crop editor</FieldHint>
                       </div>
                       <div>
@@ -427,8 +439,18 @@ export default function TemplateEditor() {
                               outputWidth: Number(e.target.value),
                             })
                           }
-                          className="w-full rounded-md border border-border bg-input text-foreground outline-none focus:border-blue px-2 py-1 text-sm"
+                          aria-invalid={fieldErrors(ti, oi, "outputWidth").length > 0 || undefined}
+                          aria-describedby={fieldErrors(ti, oi, "outputWidth").length > 0 ? `${idPrefix}-width-${ti}-${oi}-err` : undefined}
+                          className={cn(
+                            "w-full rounded-md border bg-input text-foreground outline-none focus:border-blue px-2 py-1 text-sm",
+                            fieldErrors(ti, oi, "outputWidth").length > 0 ? "border-destructive" : "border-border"
+                          )}
                         />
+                        {fieldErrors(ti, oi, "outputWidth").map((e, i) => (
+                          <p key={i} id={`${idPrefix}-width-${ti}-${oi}-err`} className="text-[11px] text-destructive mt-0.5">
+                            {e.message}
+                          </p>
+                        ))}
                         <FieldHint>
                           Width of the exported file; height is calculated from
                           ratio
@@ -515,8 +537,18 @@ export default function TemplateEditor() {
                               filenameKey: e.target.value,
                             })
                           }
-                          className="w-full rounded-md border border-border bg-input text-foreground outline-none focus:border-blue px-2 py-1 text-sm"
+                          aria-invalid={fieldErrors(ti, oi, "filenameKey").length > 0 || undefined}
+                          aria-describedby={fieldErrors(ti, oi, "filenameKey").length > 0 ? `${idPrefix}-fkey-${ti}-${oi}-err` : undefined}
+                          className={cn(
+                            "w-full rounded-md border bg-input text-foreground outline-none focus:border-blue px-2 py-1 text-sm",
+                            fieldErrors(ti, oi, "filenameKey").length > 0 ? "border-destructive" : "border-border"
+                          )}
                         />
+                        {fieldErrors(ti, oi, "filenameKey").map((e, i) => (
+                          <p key={i} id={`${idPrefix}-fkey-${ti}-${oi}-err`} className="text-[11px] text-destructive mt-0.5">
+                            {e.message}
+                          </p>
+                        ))}
                         <FieldHint>
                           Used in exported filename: photo__
                           {output.filenameKey || "key"}__{output.outputWidth}x
@@ -565,10 +597,10 @@ export default function TemplateEditor() {
                     {/* Additional formats — ship extra files sharing the
                         same crop / dimensions / quality. Common pattern:
                         WebP primary + JPEG fallback. */}
-                    <div className="mt-3">
-                      <label className="mb-1 block text-xs text-muted-foreground">
+                    <fieldset className="mt-3 m-0 border-0 p-0">
+                      <legend className="mb-1 text-xs text-muted-foreground">
                         Also Export As
-                      </label>
+                      </legend>
                       <div className="flex flex-wrap gap-2">
                         {FORMATS.filter((f) => f !== output.outputFormat).map(
                           (f) => {
@@ -606,12 +638,13 @@ export default function TemplateEditor() {
                         Ship extra files with the same crop for fallback /
                         responsive use
                       </FieldHint>
-                    </div>
+                    </fieldset>
                   </div>
                 ))}
               </div>
 
               <Button
+                type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => setEditingIndex(null)}
@@ -635,6 +668,7 @@ export default function TemplateEditor() {
                 </div>
                 <div className="flex gap-1 shrink-0">
                   <Button
+                    type="button"
                     variant="outline"
                     size="sm"
                     onClick={() => setEditingIndex(ti)}
@@ -644,6 +678,7 @@ export default function TemplateEditor() {
                     Edit
                   </Button>
                   <Button
+                    type="button"
                     variant="outline"
                     size="sm"
                     onClick={() => setDeleteConfirmIndex(ti)}
@@ -720,15 +755,16 @@ export default function TemplateEditor() {
       )}
 
       <div className="flex gap-3 items-center flex-wrap">
-        <Button variant="outline" onClick={addTemplate}>
+        <Button type="button" variant="outline" onClick={addTemplate}>
           + Add Template
         </Button>
         {apiAvailable && (
-          <Button onClick={handleSaveConfig} disabled={saving}>
+          <Button type="button" onClick={handleSaveConfig} disabled={saving}>
             {saving ? "Saving…" : "Save Config"}
           </Button>
         )}
         <Button
+          type="button"
           variant={apiAvailable ? "ghost" : "default"}
           onClick={handleDownloadConfig}
         >
