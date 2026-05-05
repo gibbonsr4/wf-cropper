@@ -6,6 +6,8 @@ A browser-based image cropping tool built around configurable templates. Drop a 
 [![Built with React 19](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind-v4-38bdf8.svg)](https://tailwindcss.com)
 
+![WF Cropper editor](docs/screenshots/wf-cropper.jpg)
+
 Built for Webflow sites, where images aren't transformed at serve time — a single source photo often needs a 16:9 hero, a 4:3 card, a 1:1 square, and a 1200×630 OG image. The tool handles that in one pass. It works for any CMS with the same constraint.
 
 Deploy to Vercel or Cloudflare Pages with one click — no CLI required. Docker is supported for self-hosting.
