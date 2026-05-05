@@ -372,6 +372,51 @@ export function autoBrightnessContrast(
 }
 
 /**
+ * Auto Tone Recovery: Detect crushed shadows and blown highlights from
+ * the luminance histogram, then return targeted shadows / highlights
+ * adjustments. Conservative by design — only recovers, never crushes
+ * or blows further. Brightness/contrast is set by autoBrightnessContrast;
+ * shadows/highlights handle dynamic-range cases that global tone can't
+ * fix on its own (e.g. bright sky over dark foreground).
+ */
+export function autoToneRecovery(
+  canvas: HTMLCanvasElement
+): Pick<AdjustmentState, "highlights" | "shadows"> {
+  const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const hist = computeHistogram(imageData);
+  const totalPixels = imageData.data.length / 4;
+
+  // Share of pixels stuck in the brightest 10% (lum 230-255) and
+  // darkest 10% (lum 0-25) of the histogram.
+  let topPx = 0;
+  for (let i = 230; i < 256; i++) topPx += hist.lum[i];
+  let bottomPx = 0;
+  for (let i = 0; i < 26; i++) bottomPx += hist.lum[i];
+  const topPct = topPx / totalPixels;
+  const bottomPct = bottomPx / totalPixels;
+
+  // Recover highlights only when noticeably clipped (>5%). Slope tuned
+  // so a heavily-blown image (25% in top 10%) lands at highlights=70.
+  let highlights = 100;
+  if (topPct > 0.05) {
+    highlights = Math.max(70, 100 - (topPct - 0.05) * 150);
+  }
+
+  // Lift shadows only when noticeably crushed. Symmetric slope —
+  // 25% crushed → shadows=130.
+  let shadows = 100;
+  if (bottomPct > 0.05) {
+    shadows = Math.min(130, 100 + (bottomPct - 0.05) * 150);
+  }
+
+  return {
+    highlights: Math.round(highlights),
+    shadows: Math.round(shadows),
+  };
+}
+
+/**
  * Auto Color: Analyze per-channel histograms to remove color casts.
  * Returns warmth and saturation adjustments.
  */
@@ -412,16 +457,23 @@ export function autoColor(
 }
 
 /**
- * Auto Enhance: Combines auto brightness/contrast + auto color.
+ * Auto Enhance: Combines auto brightness/contrast + auto tone recovery
+ * (shadows/highlights) + auto color. Sharpness/Clarity/Whites/Blacks
+ * are intentionally left at default — sharpness and clarity are
+ * stylistic choices that produce the "auto enhance looks weird"
+ * results when applied automatically; whites/blacks would double-
+ * correct against the contrast formula in autoBrightnessContrast.
  */
 export function autoEnhance(
   canvas: HTMLCanvasElement
 ): Partial<AdjustmentState> {
   const bc = autoBrightnessContrast(canvas);
+  const tr = autoToneRecovery(canvas);
   const color = autoColor(canvas);
   return {
     ...DEFAULT_ADJUSTMENTS,
     ...bc,
+    ...tr,
     ...color,
     vibrance: 110, // Slight vibrance boost
   };
