@@ -64,6 +64,7 @@ export interface AdjustmentState {
   warmth: number;
   shadows: number;
   highlights: number;
+  whites: number;
   blacks: number;
   vibrance: number;
   sharpness: number;
@@ -77,6 +78,7 @@ export const DEFAULT_ADJUSTMENTS: AdjustmentState = {
   warmth: 100,
   shadows: 100,
   highlights: 100,
+  whites: 100,
   blacks: 100,
   vibrance: 100,
   sharpness: 100,

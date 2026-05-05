@@ -116,6 +116,7 @@ function useAdjustedImage(
     adjustments.warmth !== 100 ||
     adjustments.shadows !== 100 ||
     adjustments.highlights !== 100 ||
+    adjustments.whites !== 100 ||
     adjustments.blacks !== 100 ||
     adjustments.vibrance !== 100 ||
     adjustments.sharpness !== 100 ||
@@ -231,6 +232,7 @@ function useAdjustedImage(
     adjustments.warmth,
     adjustments.shadows,
     adjustments.highlights,
+    adjustments.whites,
     adjustments.blacks,
     adjustments.vibrance,
     adjustments.sharpness,
@@ -346,6 +348,7 @@ function computePreviewScale(
     adjustments.warmth !== 100 ||
     adjustments.shadows !== 100 ||
     adjustments.highlights !== 100 ||
+    adjustments.whites !== 100 ||
     adjustments.blacks !== 100 ||
     adjustments.vibrance !== 100 ||
     adjustments.sharpness !== 100 ||
@@ -400,6 +403,7 @@ const ADJUSTMENT_KEYS: Array<keyof AdjustmentState> = [
   "warmth",
   "shadows",
   "highlights",
+  "whites",
   "blacks",
   "vibrance",
   "sharpness",

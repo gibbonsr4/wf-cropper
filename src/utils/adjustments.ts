@@ -38,6 +38,7 @@ export function applyPixelAdjustments<C extends AnyCanvas>(
     adjustments.warmth !== 100 ||
     adjustments.shadows !== 100 ||
     adjustments.highlights !== 100 ||
+    adjustments.whites !== 100 ||
     adjustments.blacks !== 100 ||
     adjustments.vibrance !== 100;
 
@@ -65,6 +66,7 @@ export function applyPixelAdjustments<C extends AnyCanvas>(
 
     const shadowsAmount = (adjustments.shadows - 100) / 100;
     const highlightsAmount = (adjustments.highlights - 100) / 100;
+    const whitesAmount = (adjustments.whites - 100) / 100;
     const blacksAmount = (adjustments.blacks - 100) / 100;
     const vibranceAmount = (adjustments.vibrance - 100) / 100;
 
@@ -96,19 +98,37 @@ export function applyPixelAdjustments<C extends AnyCanvas>(
         }
       }
 
-      // Blacks: focused control on the darkest tones — steeper falloff
-      // than Shadows (effect mostly gone by lum 0.25). Positive lifts
-      // blacks toward grey; negative crushes them deeper.
+      // Blacks: endpoint control on the darkest tones — linear ramp from
+      // 1.0 at pure black to 0 at lum 0.25, so the whole near-black range
+      // gets meaningful effect (the previous squared curve died off too
+      // quickly). Positive lifts blacks toward grey; negative crushes
+      // them deeper.
       if (blacksAmount !== 0) {
         const lum = (r * 0.2126 + g * 0.7152 + b * 0.0722) / 255;
-        const w = Math.max(0, 0.25 - lum) * 4; // 1 at black, 0 at lum 0.25
-        const blackWeight = w * w;
+        const blackWeight = Math.max(0, 0.25 - lum) * 4;
         if (blackWeight > 0) {
-          const lift = blacksAmount * blackWeight * 100;
+          const lift = blacksAmount * blackWeight * 140;
           const maxC = Math.max(r, g, b, 1);
           r = clamp(r + lift * (r / maxC));
           g = clamp(g + lift * (g / maxC));
           b = clamp(b + lift * (b / maxC));
+        }
+      }
+
+      // Whites: endpoint control on the brightest tones — symmetric to
+      // Blacks. Linear ramp from 0 at lum 0.75 to 1.0 at pure white.
+      // Positive pushes whites toward clipping; negative recovers them.
+      // Stronger and more localized than Highlights, which targets the
+      // broader upper-mid range.
+      if (whitesAmount !== 0) {
+        const lum = (r * 0.2126 + g * 0.7152 + b * 0.0722) / 255;
+        const whiteWeight = Math.max(0, lum - 0.75) * 4;
+        if (whiteWeight > 0) {
+          const push = whitesAmount * whiteWeight * 140;
+          const maxC = Math.max(r, g, b, 1);
+          r = clamp(r + push * (r / maxC));
+          g = clamp(g + push * (g / maxC));
+          b = clamp(b + push * (b / maxC));
         }
       }
 
@@ -206,8 +226,7 @@ export function applyClarity<C extends AnyCanvas>(
   const bData = blurred.data;
 
   const amount = (clarity - 100) / 100;
-  // Gentler than sharpness — the wide radius compounds the perceived effect
-  const strength = amount * 0.5;
+  const strength = amount * 0.9;
 
   for (let i = 0; i < oData.length; i += 4) {
     // Mid-tone weight: parabolic peak at lum 0.5, fades to 0 at extremes
