@@ -38,6 +38,7 @@ export function applyPixelAdjustments<C extends AnyCanvas>(
     adjustments.warmth !== 100 ||
     adjustments.shadows !== 100 ||
     adjustments.highlights !== 100 ||
+    adjustments.blacks !== 100 ||
     adjustments.vibrance !== 100;
 
   if (!hasPixelAdjustments) return canvas;
@@ -64,6 +65,7 @@ export function applyPixelAdjustments<C extends AnyCanvas>(
 
     const shadowsAmount = (adjustments.shadows - 100) / 100;
     const highlightsAmount = (adjustments.highlights - 100) / 100;
+    const blacksAmount = (adjustments.blacks - 100) / 100;
     const vibranceAmount = (adjustments.vibrance - 100) / 100;
 
     for (let i = 0; i < data.length; i += 4) {
@@ -87,6 +89,22 @@ export function applyPixelAdjustments<C extends AnyCanvas>(
         // to preserve color ratios
         if (shadowWeight > 0) {
           const lift = shadowsAmount * shadowWeight * 80;
+          const maxC = Math.max(r, g, b, 1);
+          r = clamp(r + lift * (r / maxC));
+          g = clamp(g + lift * (g / maxC));
+          b = clamp(b + lift * (b / maxC));
+        }
+      }
+
+      // Blacks: focused control on the darkest tones — steeper falloff
+      // than Shadows (effect mostly gone by lum 0.25). Positive lifts
+      // blacks toward grey; negative crushes them deeper.
+      if (blacksAmount !== 0) {
+        const lum = (r * 0.2126 + g * 0.7152 + b * 0.0722) / 255;
+        const w = Math.max(0, 0.25 - lum) * 4; // 1 at black, 0 at lum 0.25
+        const blackWeight = w * w;
+        if (blackWeight > 0) {
+          const lift = blacksAmount * blackWeight * 100;
           const maxC = Math.max(r, g, b, 1);
           r = clamp(r + lift * (r / maxC));
           g = clamp(g + lift * (g / maxC));
@@ -148,6 +166,64 @@ export function applySharpness<C extends AnyCanvas>(
 ): C {
   if (sharpness === 100) return canvas;
   applyUnsharpMask(canvas, (sharpness - 100) / 100);
+  return canvas;
+}
+
+/**
+ * Apply clarity (mid-tone local contrast) — a wide-radius unsharp mask
+ * weighted toward mid-tones so it adds "punch" to structure without
+ * crushing shadows or blowing highlights. Distinct from Sharpness:
+ * sharpness uses a small radius and targets edges; clarity uses a large
+ * radius and operates on broader luminance regions.
+ */
+export function applyClarity<C extends AnyCanvas>(
+  canvas: C,
+  clarity: number
+): C {
+  if (clarity === 100) return canvas;
+
+  const w = canvas.width;
+  const h = canvas.height;
+  const ctx = canvas.getContext("2d", {
+    willReadFrequently: true,
+  }) as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
+
+  // Larger blur than sharpness — clarity operates on structure scale.
+  // 80 chosen to land around 12–35 px on typical export dimensions.
+  const diagPx = Math.sqrt(w * w + h * h);
+  const radius = Math.max(8, Math.min(40, diagPx / 80));
+
+  const blurCanvas = createScratchCanvas(canvas, w, h);
+  const blurCtx = blurCanvas.getContext("2d") as
+    | CanvasRenderingContext2D
+    | OffscreenCanvasRenderingContext2D;
+  blurCtx.filter = `blur(${radius}px)`;
+  blurCtx.drawImage(canvas as CanvasImageSource, 0, 0);
+
+  const original = ctx.getImageData(0, 0, w, h);
+  const blurred = blurCtx.getImageData(0, 0, w, h);
+  const oData = original.data;
+  const bData = blurred.data;
+
+  const amount = (clarity - 100) / 100;
+  // Gentler than sharpness — the wide radius compounds the perceived effect
+  const strength = amount * 0.5;
+
+  for (let i = 0; i < oData.length; i += 4) {
+    // Mid-tone weight: parabolic peak at lum 0.5, fades to 0 at extremes
+    const lum =
+      (oData[i] * 0.2126 + oData[i + 1] * 0.7152 + oData[i + 2] * 0.0722) /
+      255;
+    const midWeight = Math.max(0, 1 - 4 * (lum - 0.5) * (lum - 0.5));
+    if (midWeight <= 0) continue;
+    const factor = strength * midWeight;
+    for (let c = 0; c < 3; c++) {
+      const diff = oData[i + c] - bData[i + c];
+      oData[i + c] = clamp(oData[i + c] + diff * factor);
+    }
+  }
+
+  ctx.putImageData(original, 0, 0);
   return canvas;
 }
 

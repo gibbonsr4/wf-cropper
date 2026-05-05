@@ -28,6 +28,7 @@ import { useConfig } from "@/hooks/useConfig";
 import { suggestCrop, smartCropToEasyCrop } from "@/utils/smartcrop";
 import {
   applyPixelAdjustments,
+  applyClarity,
   applySharpness,
   autoBrightnessContrast,
   autoColor,
@@ -115,8 +116,10 @@ function useAdjustedImage(
     adjustments.warmth !== 100 ||
     adjustments.shadows !== 100 ||
     adjustments.highlights !== 100 ||
+    adjustments.blacks !== 100 ||
     adjustments.vibrance !== 100 ||
-    adjustments.sharpness !== 100;
+    adjustments.sharpness !== 100 ||
+    adjustments.clarity !== 100;
 
   useEffect(() => {
     if (!hasPixelAdjustments) {
@@ -195,6 +198,7 @@ function useAdjustedImage(
           ctx.drawImage(img, 0, 0, w, h);
 
           applyPixelAdjustments(canvas, adjustments);
+          applyClarity(canvas, adjustments.clarity);
           applySharpness(canvas, adjustments.sharpness);
           if (cancelled) return;
 
@@ -227,8 +231,10 @@ function useAdjustedImage(
     adjustments.warmth,
     adjustments.shadows,
     adjustments.highlights,
+    adjustments.blacks,
     adjustments.vibrance,
     adjustments.sharpness,
+    adjustments.clarity,
   ]);
 
   useEffect(() => {
@@ -340,8 +346,10 @@ function computePreviewScale(
     adjustments.warmth !== 100 ||
     adjustments.shadows !== 100 ||
     adjustments.highlights !== 100 ||
+    adjustments.blacks !== 100 ||
     adjustments.vibrance !== 100 ||
-    adjustments.sharpness !== 100;
+    adjustments.sharpness !== 100 ||
+    adjustments.clarity !== 100;
   if (!hasPixelAdjustments) return 1;
   const maxDim = 2048;
   return Math.min(1, maxDim / Math.max(image.width, image.height));
@@ -392,8 +400,10 @@ const ADJUSTMENT_KEYS: Array<keyof AdjustmentState> = [
   "warmth",
   "shadows",
   "highlights",
+  "blacks",
   "vibrance",
   "sharpness",
+  "clarity",
 ];
 
 /**

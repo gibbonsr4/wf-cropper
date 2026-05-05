@@ -10,6 +10,7 @@
  */
 import {
   applyPixelAdjustments,
+  applyClarity,
   applySharpness,
 } from "@/utils/adjustments";
 import type { AdjustmentState } from "@/types";
@@ -40,6 +41,7 @@ self.onmessage = async (e: MessageEvent<RenderRequest>) => {
     ctx.drawImage(bitmap, 0, 0, width, height);
 
     applyPixelAdjustments(canvas, adjustments);
+    applyClarity(canvas, adjustments.clarity);
     applySharpness(canvas, adjustments.sharpness);
 
     const blob = await canvas.convertToBlob({ type: "image/png" });

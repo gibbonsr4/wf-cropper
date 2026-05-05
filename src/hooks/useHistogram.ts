@@ -85,12 +85,13 @@ export function useHistogram(
         ctx.filter = "none";
         if (isStale()) return;
 
-        // Pixel-based adjustments (warmth/shadows/highlights/vibrance).
-        // Sharpness is intentionally skipped — it doesn't change the
-        // tonal distribution meaningfully but costs us a blur pass.
+        // Pixel-based adjustments (warmth/shadows/highlights/blacks/vibrance).
+        // Sharpness and Clarity are intentionally skipped — they don't change
+        // the tonal distribution meaningfully but each costs us a blur pass.
         applyPixelAdjustments(canvas, {
           ...adjustments,
           sharpness: DEFAULT_ADJUSTMENTS.sharpness,
+          clarity: DEFAULT_ADJUSTMENTS.clarity,
         });
         if (isStale()) return;
 

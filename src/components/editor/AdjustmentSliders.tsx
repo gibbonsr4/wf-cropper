@@ -69,9 +69,11 @@ const sliderDefs: Array<{
   { key: "contrast", label: "Contrast", group: "light" },
   { key: "shadows", label: "Shadows", group: "light" },
   { key: "highlights", label: "Highlights", group: "light" },
+  { key: "blacks", label: "Blacks", group: "light" },
   { key: "saturation", label: "Saturation", group: "color" },
   { key: "vibrance", label: "Vibrance", group: "color" },
   { key: "warmth", label: "Warmth", group: "color" },
+  { key: "clarity", label: "Clarity", group: "detail" },
   { key: "sharpness", label: "Sharpness", group: "detail" },
 ];
 

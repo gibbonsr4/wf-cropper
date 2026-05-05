@@ -1,5 +1,5 @@
 import type { CroppedArea, AdjustmentState, TemplateOutput } from "@/types";
-import { applyPixelAdjustments, applySharpness } from "./adjustments";
+import { applyPixelAdjustments, applyClarity, applySharpness } from "./adjustments";
 import { loadImage, buildCSSFilter } from "./image";
 
 /**
@@ -42,8 +42,9 @@ export async function renderCroppedImage(
   // Reset filter before pixel operations
   cropCtx.filter = "none";
 
-  // Step 2: Apply tone/color pixel adjustments. Sharpening is deferred until
-  // after resize so it's tuned to output resolution, not source resolution.
+  // Step 2: Apply tone/color pixel adjustments. Sharpening and clarity are
+  // deferred until after resize so their radii are tuned to output
+  // resolution, not source resolution.
   applyPixelAdjustments(cropCanvas, adjustments);
 
   // Step 3: Resize to target dimensions using multi-step downsampling
@@ -56,8 +57,10 @@ export async function renderCroppedImage(
 
   const resized = multiStepResize(cropCanvas, targetWidth, targetHeight);
 
-  // Step 4: Sharpen at output resolution. Radius scales with image diagonal,
-  // so running this on the resized canvas gives consistent perceptual results.
+  // Step 4: Local-contrast and edge sharpening at output resolution.
+  // Clarity (wide radius, mid-tone weighted) before Sharpness (narrow
+  // radius, edge-focused) so the order matches typical photo workflows.
+  applyClarity(resized, adjustments.clarity);
   applySharpness(resized, adjustments.sharpness);
 
   // Step 5: Encode to target format. AVIF support is inconsistent across
