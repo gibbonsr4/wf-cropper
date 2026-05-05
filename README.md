@@ -6,8 +6,6 @@
 [![Built with React 19](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind-v4-38bdf8.svg)](https://tailwindcss.com)
 
-[[SCREENSHOT: hero shot of the crop editor with a multi-output template active, sidebar showing image queue, right panel adjustments visible. Wide aspect, ~1440×900. Sunset/landscape photo works well as a subject since it shows off the crop + adjustment tooling.]]
-
 ---
 
 ## Why I built this
@@ -30,13 +28,9 @@ The tool was built specifically for Webflow sites, but the problem isn't Webflow
 
 **One image in, every variant out.** Define a template (aspect ratios, output dimensions, formats, quality) once. Every photo you drop gets cropped to every output in that template, named consistently, and packaged as a single ZIP.
 
-[[SCREENSHOT: the template-pick screen — PreCropShell with an uploaded image on the left and the four default template cards in the center (Blog Hero, Blog Card, Staff Headshot, Social Share Image, Custom). Hero for "pick a template".]]
-
 ### Batch mode
 
 Drop 30 photos for a team page and step through them. Each image × each output shows in the editor with an auto-suggested crop already applied — accept it, nudge it, or reposition freely. Per-image adjustments (brightness, warmth, etc.) stay isolated so tuning one portrait doesn't affect the others. Export the whole set as one ZIP at the end.
-
-[[SCREENSHOT: the multi-image crop editor with 4+ images queued in the left sidebar, a checkmark or two on completed images, the current image actively cropped with the crop rectangle visible, and the histogram + adjustment sliders populated on the right. Shows the "queue in action" story.]]
 
 ### Smart crop
 
@@ -45,8 +39,6 @@ Don't know where to crop? The tool uses saliency detection (with `FaceDetector` 
 ### Pro-grade adjustments
 
 Brightness, contrast, saturation, warmth, shadows, highlights, vibrance, and sharpness — with a live RGB + luminance histogram that samples the current crop (not the whole image) so you're tuning what you'll actually ship. One-click Auto Enhance / Auto Levels / Auto Color buttons for when you just need a quick lift.
-
-[[SCREENSHOT: close-up of the adjustments panel on the right side of the editor — histogram at the top, Auto Enhance / Auto Levels / Auto Color buttons, then the slider sections (Light / Color / Detail). Shows the depth of the editing tooling.]]
 
 ### Multi-format export
 
@@ -74,8 +66,6 @@ Every pixel stays in your browser. Files don't touch a server. No accounts, no a
 
 **1. Define your templates** — once, either through the setup wizard or by editing a JSON config. Name, aspect ratio, output width, format, quality, and optional crop hints.
 
-[[SCREENSHOT: the Template Manager (`/admin`) showing the default templates list with Edit/Delete buttons visible, the aspect glyphs, and format badges (WEBP/JPEG/PNG). Shows the "no-code configuration" story.]]
-
 **2. Upload your image(s)** — drop a single photo for the full editor, or drop a batch for the queue. Auto-suggest fires per image × output so you start from a reasonable crop instead of a blank one.
 
 **3. Review, adjust, export** — step through every image × output, nudge crops that need it, apply adjustments per image, then hit Export. Multi-output exports bundle automatically as a ZIP.
@@ -94,9 +84,52 @@ This isn't marketing fluff. Open DevTools → Network while you use it. You won'
 
 ---
 
-## Get started
+## Deploy
 
-### Try it locally in 60 seconds
+Pick the path that matches your comfort level. **Vercel and Cloudflare Pages require no CLI** — both are GitHub-connected, zero-terminal flows.
+
+### 🚀 Vercel (easiest, ~5 min)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FYOUR_ORG%2Fwf-cropper)
+
+1. Click the button — Vercel forks the repo to your GitHub.
+2. Click **Deploy**. No environment variables required.
+3. Vercel gives you a `your-app.vercel.app` URL.
+4. (Optional) add a custom domain in Vercel's dashboard.
+
+> The admin (`/admin`) and wizard (`/wizard`) pages save templates to your browser's `localStorage` in this mode. To set a permanent default, export your config as JSON and commit it to `public/config.json`.
+
+### 🌩️ Cloudflare Pages (~10 min, recommended if you want server-persisted templates)
+
+1. Fork this repo on GitHub.
+2. Sign in to Cloudflare → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
+3. Select your fork. Set **Build command** to `npm run build` and **Output directory** to `dist`. Click **Save and Deploy**.
+4. **(Optional) Enable server-persisted templates** so `/admin` and `/wizard` save directly without downloading a file:
+   - **Settings → Functions → KV namespace bindings** → add a binding with variable name `CONFIG_KV`. Create a new namespace named `CONFIG_KV` if you don't have one.
+   - **Settings → Environment variables** → add `ALLOW_CONFIG_WRITES=true`.
+
+   Without these, `/admin` and `/wizard` fall back to Download JSON mode automatically — no broken pages.
+
+### 🐳 Docker (self-host, ~10 min)
+
+```bash
+# Grab the example compose file from the repo
+curl -O https://raw.githubusercontent.com/YOUR_ORG/wf-cropper/main/docker-compose.example.yml
+mv docker-compose.example.yml docker-compose.yml
+
+# Build and start (builds the image, then serves on port 3000)
+docker compose up -d
+```
+
+The app listens on port **3000**. Reverse-proxy through Nginx, Caddy, or Apache for HTTPS, or open `http://<host>:3000` on a LAN.
+
+No environment variables required. The admin and wizard pages use Download JSON mode.
+
+To run without Docker: `npm install && npm run build` then serve the `dist/` directory with any static file server.
+
+---
+
+## Get started locally
 
 ```bash
 git clone https://github.com/YOUR_ORG/wf-cropper.git
@@ -106,36 +139,6 @@ npm run dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173). Drop an image, pick a template, start cropping.
-
-### Deploy your own
-
-It's a pure static site — any CDN works. Pick your path:
-
-**Netlify (one-click fork + deploy):**
-
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/YOUR_ORG/wf-cropper)
-
-**Vercel (one-click fork + deploy):**
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FYOUR_ORG%2Fwf-cropper)
-
-**Cloudflare Pages** (recommended for the optional admin-persistence feature):
-
-```bash
-npm run build
-npx wrangler pages deploy dist
-```
-
-Or connect your fork in the Cloudflare dashboard — build command `npm run build`, output directory `dist`. To enable browser-persisted template edits, bind a KV namespace named `CONFIG_KV` under Settings → Functions → KV bindings.
-
-**Any other static host** (GitHub Pages, S3+CloudFront, nginx, Caddy, etc.):
-
-```bash
-npm run build
-# Upload the contents of dist/ to your host.
-```
-
-On hosts without the Cloudflare Pages Function, the `/admin` and `/wizard` surfaces automatically drop to **Download JSON** mode — configure templates in the browser, save the file, upload it to `/config.json` on your site. No code changes needed.
 
 ---
 
@@ -250,7 +253,6 @@ npm run format         # prettier --write .
 
 Issues and pull requests welcome. A few things worth knowing:
 
-- The `docs/audit/` directory holds a UX/UI/accessibility audit (Claude + Codex independent passes, reconciled). Check there before proposing UX changes — the decisions behind the current design are documented.
 - Commit style: focused, one concern per commit, present tense.
 - No new dependencies without discussion — the "zero backend, browser-only" story depends on staying lean.
 - Tests come with the code: `vitest` against `jsdom` + `node-canvas`.
