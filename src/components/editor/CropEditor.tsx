@@ -592,10 +592,8 @@ export default function CropEditor({
   const currentImage = images[safeImageIndex];
 
   // ── Per-image editor state ─────────────────────────────────────────
-  // All state that varies per image lives in this Map, keyed by objectUrl.
-  // Today (Commit 1) the editor still receives a single `image` prop, so the
-  // Map has one entry — but the structure is ready for the multi-image queue
-  // introduced in later commits.
+  // All state that varies per image lives in this Map, keyed by objectUrl,
+  // so switching images in the queue preserves each image's crop and history.
   const [imageStates, setImageStates] = useState<Map<string, ImageEditorState>>(
     () => new Map([[currentImage.objectUrl, createInitialImageState(outputs)]])
   );

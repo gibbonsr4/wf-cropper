@@ -1,5 +1,12 @@
 import type { AdjustmentState } from "@/types";
 
+/** Formats a byte count as a short human-readable string (B / KB / MB). */
+export function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 /**
  * Load an image from a URL and return the element once decoded.
  */

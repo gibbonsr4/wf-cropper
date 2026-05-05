@@ -3,6 +3,7 @@ import { Check, Upload } from "lucide-react";
 import type { ImageMetadata } from "@/types";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { formatBytes } from "@/utils/image";
 
 interface ImageNavigatorProps {
   images: ImageMetadata[];
@@ -212,10 +213,3 @@ function Thumb({ image }: { image: ImageMetadata }) {
   );
 }
 
-/** Formats a byte count to a short human-readable string. Mirror of
- *  SourceImageCard's formatter so this component is self-contained. */
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}

@@ -2,17 +2,11 @@ import { useState, useEffect } from "react";
 import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ImageMetadata } from "@/types";
+import { formatBytes } from "@/utils/image";
 
 interface SourceImageCardProps {
   image: ImageMetadata;
   onReplace: () => void;
-}
-
-/** Formats a byte count to a short human-readable string (KB / MB). */
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 export default function SourceImageCard({
