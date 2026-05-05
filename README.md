@@ -72,7 +72,7 @@ Pick the path that matches your setup. **Vercel and Cloudflare Pages require no 
 
 ### 🚀 Vercel (~5 min)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FYOUR_ORG%2Fwf-cropper)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fgibbonsr4%2Fwf-cropper)
 
 1. Click the button — Vercel forks the repo to your GitHub.
 2. Click **Deploy**. No environment variables required.
@@ -97,7 +97,7 @@ Recommended if you want templates saved server-side so they persist across brows
 ### 🐳 Docker (~10 min)
 
 ```bash
-curl -O https://raw.githubusercontent.com/YOUR_ORG/wf-cropper/main/docker-compose.example.yml
+curl -O https://raw.githubusercontent.com/gibbonsr4/wf-cropper/main/docker-compose.example.yml
 mv docker-compose.example.yml docker-compose.yml
 docker compose up -d
 ```
@@ -111,7 +111,7 @@ Admin and wizard pages use Download JSON mode — no KV binding in this configur
 ## Get started locally
 
 ```bash
-git clone https://github.com/YOUR_ORG/wf-cropper.git
+git clone https://github.com/gibbonsr4/wf-cropper.git
 cd wf-cropper
 npm install
 npm run dev
