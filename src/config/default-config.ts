@@ -1,0 +1,95 @@
+import type { AppConfig } from "@/types";
+
+export const defaultConfig: AppConfig = {
+  templates: [
+    {
+      id: "blog-hero",
+      name: "Blog Hero",
+      description: "Wide banner image for blog post headers",
+      minInputWidth: 2000,
+      minInputShortSide: null,
+      outputs: [
+        {
+          id: "blog-hero-main",
+          name: "Hero Image",
+          aspectRatio: [16, 9],
+          outputWidth: 2000,
+          outputHeight: null,
+          outputFormat: "webp",
+          quality: 80,
+          filenameKey: "blog-hero",
+        },
+      ],
+    },
+    {
+      id: "blog-card",
+      name: "Blog Card",
+      description: "Thumbnail image for blog card components",
+      minInputWidth: 600,
+      minInputShortSide: null,
+      outputs: [
+        {
+          id: "blog-card-main",
+          name: "Card Image",
+          aspectRatio: [4, 3],
+          outputWidth: 600,
+          outputHeight: null,
+          outputFormat: "webp",
+          quality: 80,
+          filenameKey: "blog-card",
+        },
+      ],
+    },
+    {
+      id: "staff-headshot",
+      name: "Staff Headshot",
+      description: "Square + landscape crops for staff profile pages",
+      minInputWidth: 800,
+      minInputShortSide: 800,
+      outputs: [
+        {
+          id: "headshot-square",
+          name: "Square Headshot",
+          aspectRatio: [1, 1],
+          outputWidth: 800,
+          outputHeight: 800,
+          outputFormat: "webp",
+          quality: 85,
+          filenameKey: "headshot-square",
+          cropHint: "face-center",
+        },
+        {
+          id: "headshot-landscape",
+          name: "Landscape Headshot",
+          aspectRatio: [3, 2],
+          outputWidth: 900,
+          outputHeight: 600,
+          outputFormat: "webp",
+          quality: 85,
+          filenameKey: "headshot-landscape",
+          cropHint: "face-top",
+        },
+      ],
+    },
+    {
+      id: "social-share",
+      name: "Social Share Image",
+      description: "Open Graph image for social media sharing",
+      minInputWidth: 1200,
+      minInputShortSide: null,
+      outputs: [
+        {
+          id: "social-share-main",
+          name: "OG Image",
+          aspectRatio: [1200, 630],
+          outputWidth: 1200,
+          outputHeight: 630,
+          outputFormat: "jpeg",
+          quality: 85,
+          filenameKey: "og-image",
+        },
+      ],
+    },
+  ],
+  filenamePattern: "{basename}__{filenameKey}__{width}x{height}.{ext}",
+};

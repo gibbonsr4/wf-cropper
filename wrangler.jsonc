@@ -1,0 +1,29 @@
+{
+  // Cloudflare Pages configuration (git-integrated deploys read this
+  // at build time; local `wrangler pages deploy dist` uses it too).
+  //
+  // The previous version used the Workers Static Assets shape
+  // (`assets.directory`), which Cloudflare Pages can't parse — it
+  // warned "Did you mean to use wrangler.toml to configure Pages?"
+  // and skipped the file, leaving the KV binding unconfigured.
+  //
+  // The distinguishing property for Pages is `pages_build_output_dir`.
+  "name": "wf-cropper",
+  "compatibility_date": "2026-03-05",
+  "pages_build_output_dir": "./dist",
+
+  // Bound to the Pages Function at functions/api/config.ts — reads /
+  // writes the active config JSON so /admin and /wizard can persist
+  // edits without a rebuild. If you don't want admin persistence,
+  // leave this binding out in your environment and the app falls
+  // back to static /config.json + Download-JSON mode automatically.
+  // To enable admin config persistence, create a KV namespace and paste the id below:
+  //   npx wrangler kv namespace create CONFIG_KV
+  // Without this, the app falls back to public/config.json automatically.
+  "kv_namespaces": [
+    {
+      "binding": "CONFIG_KV",
+      "id": "YOUR_KV_NAMESPACE_ID"
+    }
+  ]
+}

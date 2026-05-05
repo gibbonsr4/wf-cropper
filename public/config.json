@@ -1,0 +1,4 @@
+{
+  "templates": [],
+  "filenamePattern": "{basename}__{filenameKey}__{width}x{height}.{ext}"
+}

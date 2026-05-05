@@ -1,0 +1,5 @@
+dist
+node_modules
+public/sketch.html
+package-lock.json
+.claude
