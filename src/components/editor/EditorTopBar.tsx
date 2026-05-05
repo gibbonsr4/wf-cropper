@@ -1,12 +1,10 @@
 import { Link } from "react-router";
 import { useRef } from "react";
 import {
-  ArrowLeft,
   Check,
   Download,
   Crop as CropIcon,
   Keyboard,
-  KeyboardOff,
   Undo2,
   Redo2,
   History,
@@ -46,9 +44,6 @@ interface EditorTopBarProps {
   historyOpen?: boolean;
   historyCount?: number;
   historyButtonRef?: React.RefObject<HTMLButtonElement | null>;
-  /** Keyboard shortcuts preference */
-  shortcutsEnabled?: boolean;
-  onToggleShortcuts?: () => void;
   /** Compare mode (before/after) */
   compareMode?: boolean;
   onToggleCompare?: () => void;
@@ -100,8 +95,6 @@ export default function EditorTopBar({
   historyOpen,
   historyCount,
   historyButtonRef,
-  shortcutsEnabled,
-  onToggleShortcuts,
   compareMode,
   onToggleCompare,
 }: EditorTopBarProps) {
@@ -118,6 +111,7 @@ export default function EditorTopBar({
     <header className="flex h-[52px] items-center gap-3 border-b border-border bg-card px-4">
       <Link
         to="/"
+        onClick={(e) => { e.preventDefault(); onBack(); }}
         className="flex items-center gap-2 text-[13px] font-semibold tracking-tight"
       >
         <span
@@ -141,46 +135,7 @@ export default function EditorTopBar({
       <div className="flex-1" />
 
       <div className="flex items-center gap-2">
-        {/* Secondary navigation — mirrors the global Header's nav items
-            so users don't have to Back-out of the editor to reach the
-            Wizard or Templates surfaces. Matches Header.tsx styling. */}
-        <nav
-          aria-label="Main navigation"
-          className="flex items-center gap-4 pr-1"
-        >
-          <Link
-            to="/wizard"
-            className="rounded-[4px] px-2 py-1.5 -mx-2 -my-1.5 text-[12px] text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-blue"
-          >
-            Wizard
-          </Link>
-          <Link
-            to="/admin"
-            className="rounded-[4px] px-2 py-1.5 -mx-2 -my-1.5 text-[12px] text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-blue"
-          >
-            Templates
-          </Link>
-        </nav>
-
-        {/* Back — the "exit this editor session" action, distinct from
-            the cross-route nav above it. */}
-        <Button variant="ghost" size="sm" onClick={onBack}>
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Back
-        </Button>
-
-        {/* Thin separator between Back (navigation) and the editing
-            utilities below. Keeps the groups visually distinct. */}
-        <span
-          className="mx-1 h-4 w-px bg-border"
-          aria-hidden="true"
-        />
-
-        {/* Edit-state utilities: Undo, Redo, History, Keyboard. Undo and
-            Redo are adjacent so the directional pair reads together;
-            History drops in right after since it's a superset of Redo;
-            Keyboard is the help affordance on the far right of this
-            group. */}
+        {/* Edit-state utilities: Undo, Redo, History, Keyboard. */}
         {onUndo && (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -261,28 +216,6 @@ export default function EditorTopBar({
             <TooltipContent>
               Keyboard shortcuts
               <ShortcutHint keys={["Shift", "/"]} />
-            </TooltipContent>
-          </Tooltip>
-        )}
-        {onToggleShortcuts && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onToggleShortcuts}
-                aria-label={shortcutsEnabled ? "Disable keyboard shortcuts" : "Enable keyboard shortcuts"}
-                aria-pressed={shortcutsEnabled}
-                className="px-2"
-              >
-                {shortcutsEnabled
-                  ? <Keyboard className="h-3.5 w-3.5" />
-                  : <KeyboardOff className="h-3.5 w-3.5" />
-                }
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              {shortcutsEnabled ? "Shortcuts on" : "Shortcuts off"}
             </TooltipContent>
           </Tooltip>
         )}

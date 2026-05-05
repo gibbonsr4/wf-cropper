@@ -1,11 +1,13 @@
 import { createPortal } from "react-dom";
-import { X } from "lucide-react";
+import { Keyboard, KeyboardOff, X } from "lucide-react";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 import type { Shortcut } from "@/hooks/useKeyboardShortcuts";
 
 interface ShortcutsOverlayProps {
   shortcuts: Shortcut[];
   onClose: () => void;
+  shortcutsEnabled?: boolean;
+  onToggleShortcuts?: () => void;
 }
 
 function isMac(): boolean {
@@ -70,6 +72,8 @@ function keyLabel(sc: Shortcut): string[] {
 export function ShortcutsOverlay({
   shortcuts,
   onClose,
+  shortcutsEnabled,
+  onToggleShortcuts,
 }: ShortcutsOverlayProps) {
   const cardRef = useFocusTrap(onClose);
 
@@ -144,13 +148,30 @@ export function ShortcutsOverlay({
           ))}
         </div>
 
-        <p className="flex-shrink-0 border-t border-border px-5 py-2.5 text-[11px] text-fg-tertiary">
-          Press{" "}
-          <kbd className="mx-0.5 rounded-[4px] border border-border bg-raised px-1.5 py-0.5 text-[10px] font-semibold leading-none">
-            Esc
-          </kbd>{" "}
-          to close.
-        </p>
+        <div className="flex flex-shrink-0 items-center justify-between border-t border-border px-5 py-2.5">
+          <p className="text-[11px] text-fg-tertiary">
+            Press{" "}
+            <kbd className="mx-0.5 rounded-[4px] border border-border bg-raised px-1.5 py-0.5 text-[10px] font-semibold leading-none">
+              Esc
+            </kbd>{" "}
+            to close.
+          </p>
+          {onToggleShortcuts && (
+            <button
+              type="button"
+              onClick={onToggleShortcuts}
+              aria-pressed={shortcutsEnabled}
+              aria-label={shortcutsEnabled ? "Disable keyboard shortcuts" : "Enable keyboard shortcuts"}
+              className="flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:bg-raised hover:text-foreground"
+            >
+              {shortcutsEnabled
+                ? <Keyboard className="h-3.5 w-3.5" aria-hidden="true" />
+                : <KeyboardOff className="h-3.5 w-3.5" aria-hidden="true" />
+              }
+              {shortcutsEnabled ? "Shortcuts on" : "Shortcuts off"}
+            </button>
+          )}
+        </div>
       </div>
     </div>,
     document.body
