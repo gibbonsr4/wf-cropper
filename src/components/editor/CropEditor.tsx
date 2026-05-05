@@ -1456,14 +1456,19 @@ export default function CropEditor({
     if (horizonDrawActive) return;
     if (historyOpen) return;
     if (!shortcutsEnabled) return;
-    // Expanded from the original isEditable check: Space should not
-    // trigger compare mode when focus is on ANY interactive element —
-    // buttons, links, inputs, etc. — where Space already has a native
-    // role (activate button, toggle checkbox, follow link).
+    // Space should not trigger compare mode when focus is on an element
+    // where Space has a native role (activate button, toggle checkbox,
+    // type into a field). Range sliders are deliberately excluded —
+    // sliders use arrow keys, not Space, so suppressing Space there
+    // would be a false positive: the user just adjusted a slider and
+    // expects Space to compare.
     const isInteractive = (target: EventTarget | null) => {
       if (!(target instanceof HTMLElement)) return false;
       const tag = target.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return true;
+      if (tag === "INPUT") {
+        return (target as HTMLInputElement).type !== "range";
+      }
+      if (tag === "TEXTAREA" || tag === "SELECT") return true;
       if (tag === "BUTTON" || tag === "A") return true;
       if (target.isContentEditable) return true;
       if (target.getAttribute("role") === "button") return true;
