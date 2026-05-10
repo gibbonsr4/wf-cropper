@@ -92,9 +92,9 @@ Recommended if you want templates saved server-side so they persist across brows
 3. Select your fork. **Build command:** `npm run build`. **Output directory:** `dist`. Click **Save and Deploy**.
 4. **(Optional) Enable server-persisted templates:**
    - **Settings → Functions → KV namespace bindings** → add a binding named `CONFIG_KV`. Create the namespace if needed.
-   - **Settings → Environment variables** → add `ALLOW_CONFIG_WRITES=true`.
+   - **Settings → Environment variables** → add `ADMIN_TOKEN` set to a long random string (e.g. `openssl rand -hex 32`). The first time you save from `/admin` or `/wizard`, your browser prompts you for this token and stores it in `localStorage`.
 
-   Without these, `/admin` and `/wizard` fall back to Download JSON mode — no broken pages.
+   Without these, `/admin` and `/wizard` fall back to Download JSON mode — no broken pages. The previous `ALLOW_CONFIG_WRITES=true` flag is no longer used; it enabled an unauthenticated public write endpoint and has been replaced by `ADMIN_TOKEN`.
 
 ### 🐳 Docker (~10 min)
 
